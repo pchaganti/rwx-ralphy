@@ -373,7 +373,7 @@ cleanup() {
   [[ -n "$ai_pid" ]] && kill "$ai_pid" 2>/dev/null || true
   
   # Kill parallel processes
-  for pid in "${parallel_pids[@]}"; do
+  for pid in "${parallel_pids[@]+"${parallel_pids[@]}"}"; do
     kill "$pid" 2>/dev/null || true
   done
   
@@ -389,7 +389,7 @@ cleanup() {
     log_warn "Interrupted! Cleaned up."
     
     # Show branches created if any
-    if [[ ${#task_branches[@]} -gt 0 ]]; then
+    if [[ -n "${task_branches[*]+"${task_branches[*]}"}" ]]; then
       log_info "Branches created: ${task_branches[*]}"
     fi
   fi
@@ -1194,7 +1194,7 @@ show_summary() {
   fi
   
   # Show branches if created
-  if [[ ${#task_branches[@]} -gt 0 ]]; then
+  if [[ -n "${task_branches[*]+"${task_branches[*]}"}" ]]; then
     echo ""
     echo "${BOLD}>>> Branches Created${RESET}"
     for branch in "${task_branches[@]}"; do
