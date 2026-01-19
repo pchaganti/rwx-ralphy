@@ -29,7 +29,7 @@ export class GitHubTaskSource implements TaskSource {
 	}
 
 	async getAllTasks(): Promise<Task[]> {
-		const issues = await this.octokit.issues.listForRepo({
+		const issues = await this.octokit.paginate(this.octokit.issues.listForRepo, {
 			owner: this.owner,
 			repo: this.repo,
 			state: "open",
@@ -37,7 +37,7 @@ export class GitHubTaskSource implements TaskSource {
 			per_page: 100,
 		});
 
-		return issues.data.map((issue) => ({
+		return issues.map((issue) => ({
 			id: `${issue.number}:${issue.title}`,
 			title: issue.title,
 			body: issue.body || undefined,
@@ -67,7 +67,7 @@ export class GitHubTaskSource implements TaskSource {
 	}
 
 	async countRemaining(): Promise<number> {
-		const issues = await this.octokit.issues.listForRepo({
+		const issues = await this.octokit.paginate(this.octokit.issues.listForRepo, {
 			owner: this.owner,
 			repo: this.repo,
 			state: "open",
@@ -75,11 +75,11 @@ export class GitHubTaskSource implements TaskSource {
 			per_page: 100,
 		});
 
-		return issues.data.length;
+		return issues.length;
 	}
 
 	async countCompleted(): Promise<number> {
-		const issues = await this.octokit.issues.listForRepo({
+		const issues = await this.octokit.paginate(this.octokit.issues.listForRepo, {
 			owner: this.owner,
 			repo: this.repo,
 			state: "closed",
@@ -87,7 +87,7 @@ export class GitHubTaskSource implements TaskSource {
 			per_page: 100,
 		});
 
-		return issues.data.length;
+		return issues.length;
 	}
 
 	/**
