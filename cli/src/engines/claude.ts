@@ -6,7 +6,7 @@ import {
 	parseStreamJsonResult,
 	detectStepFromOutput,
 } from "./base.ts";
-import type { AIResult, ProgressCallback } from "./types.ts";
+import type { AIResult, EngineOptions, ProgressCallback } from "./types.ts";
 
 /**
  * Claude Code AI Engine
@@ -15,10 +15,16 @@ export class ClaudeEngine extends BaseAIEngine {
 	name = "Claude Code";
 	cliCommand = "claude";
 
-	async execute(prompt: string, workDir: string): Promise<AIResult> {
+	async execute(prompt: string, workDir: string, options?: EngineOptions): Promise<AIResult> {
+		const args = ["--dangerously-skip-permissions", "--verbose", "--output-format", "stream-json"];
+		if (options?.modelOverride) {
+			args.push("--model", options.modelOverride);
+		}
+		args.push("-p", prompt);
+
 		const { stdout, stderr, exitCode } = await execCommand(
 			this.cliCommand,
-			["--dangerously-skip-permissions", "--verbose", "--output-format", "stream-json", "-p", prompt],
+			args,
 			workDir
 		);
 
@@ -50,13 +56,20 @@ export class ClaudeEngine extends BaseAIEngine {
 	async executeStreaming(
 		prompt: string,
 		workDir: string,
-		onProgress: ProgressCallback
+		onProgress: ProgressCallback,
+		options?: EngineOptions
 	): Promise<AIResult> {
+		const args = ["--dangerously-skip-permissions", "--verbose", "--output-format", "stream-json"];
+		if (options?.modelOverride) {
+			args.push("--model", options.modelOverride);
+		}
+		args.push("-p", prompt);
+
 		const outputLines: string[] = [];
 
 		const { exitCode } = await execCommandStreaming(
 			this.cliCommand,
-			["--dangerously-skip-permissions", "--verbose", "--output-format", "stream-json", "-p", prompt],
+			args,
 			workDir,
 			(line) => {
 				outputLines.push(line);

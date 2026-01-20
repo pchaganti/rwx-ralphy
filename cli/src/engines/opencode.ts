@@ -1,5 +1,5 @@
 import { BaseAIEngine, checkForErrors, execCommand } from "./base.ts";
-import type { AIResult } from "./types.ts";
+import type { AIResult, EngineOptions } from "./types.ts";
 
 /**
  * OpenCode AI Engine
@@ -8,10 +8,16 @@ export class OpenCodeEngine extends BaseAIEngine {
 	name = "OpenCode";
 	cliCommand = "opencode";
 
-	async execute(prompt: string, workDir: string): Promise<AIResult> {
+	async execute(prompt: string, workDir: string, options?: EngineOptions): Promise<AIResult> {
+		const args = ["run", "--format", "json"];
+		if (options?.modelOverride) {
+			args.push("--model", options.modelOverride);
+		}
+		args.push(prompt);
+
 		const { stdout, stderr, exitCode } = await execCommand(
 			this.cliCommand,
-			["run", "--format", "json", prompt],
+			args,
 			workDir,
 			{ OPENCODE_PERMISSION: '{"*":"allow"}' }
 		);

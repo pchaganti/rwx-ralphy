@@ -85,6 +85,10 @@ export interface RuntimeOptions {
 	autoCommit: boolean;
 	/** Browser automation mode: 'auto' | 'true' | 'false' */
 	browserEnabled: "auto" | "true" | "false";
+	/** Override default model for the engine */
+	modelOverride?: string;
+	/** Skip automatic branch merging after parallel execution */
+	skipMerge?: boolean;
 }
 
 /**

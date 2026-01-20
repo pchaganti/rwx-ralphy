@@ -27,6 +27,10 @@ export interface ExecutionOptions {
 	browserEnabled: "auto" | "true" | "false";
 	/** Active settings to display in spinner */
 	activeSettings?: string[];
+	/** Override default model for the engine */
+	modelOverride?: string;
+	/** Skip automatic branch merging after parallel execution */
+	skipMerge?: boolean;
 }
 
 export interface ExecutionResult {
@@ -57,6 +61,7 @@ export async function runSequential(options: ExecutionOptions): Promise<Executio
 		autoCommit,
 		browserEnabled,
 		activeSettings,
+		modelOverride,
 	} = options;
 
 	const result: ExecutionResult = {
@@ -120,13 +125,14 @@ export async function runSequential(options: ExecutionOptions): Promise<Executio
 						spinner.updateStep("Working");
 
 						// Use streaming if available
+						const engineOptions = modelOverride ? { modelOverride } : undefined;
 						if (engine.executeStreaming) {
 							return await engine.executeStreaming(prompt, workDir, (step) => {
 								spinner.updateStep(step);
-							});
+							}, engineOptions);
 						}
 
-						const res = await engine.execute(prompt, workDir);
+						const res = await engine.execute(prompt, workDir, engineOptions);
 
 						if (!res.success && res.error && isRetryableError(res.error)) {
 							throw new Error(res.error);

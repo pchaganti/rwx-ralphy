@@ -5,7 +5,7 @@ import {
 	execCommandStreaming,
 	detectStepFromOutput,
 } from "./base.ts";
-import type { AIResult, ProgressCallback } from "./types.ts";
+import type { AIResult, EngineOptions, ProgressCallback } from "./types.ts";
 
 /**
  * Factory Droid AI Engine
@@ -14,10 +14,16 @@ export class DroidEngine extends BaseAIEngine {
 	name = "Factory Droid";
 	cliCommand = "droid";
 
-	async execute(prompt: string, workDir: string): Promise<AIResult> {
+	async execute(prompt: string, workDir: string, options?: EngineOptions): Promise<AIResult> {
+		const args = ["exec", "--output-format", "stream-json", "--auto", "medium"];
+		if (options?.modelOverride) {
+			args.push("--model", options.modelOverride);
+		}
+		args.push(prompt);
+
 		const { stdout, stderr, exitCode } = await execCommand(
 			this.cliCommand,
-			["exec", "--output-format", "stream-json", "--auto", "medium", prompt],
+			args,
 			workDir
 		);
 
@@ -74,13 +80,20 @@ export class DroidEngine extends BaseAIEngine {
 	async executeStreaming(
 		prompt: string,
 		workDir: string,
-		onProgress: ProgressCallback
+		onProgress: ProgressCallback,
+		options?: EngineOptions
 	): Promise<AIResult> {
+		const args = ["exec", "--output-format", "stream-json", "--auto", "medium"];
+		if (options?.modelOverride) {
+			args.push("--model", options.modelOverride);
+		}
+		args.push(prompt);
+
 		const outputLines: string[] = [];
 
 		const { exitCode } = await execCommandStreaming(
 			this.cliCommand,
-			["exec", "--output-format", "stream-json", "--auto", "medium", prompt],
+			args,
 			workDir,
 			(line) => {
 				outputLines.push(line);
