@@ -147,9 +147,9 @@ export async function deleteLocalBranch(
 
 /**
  * Complete a merge after conflicts have been resolved
- * Only stages and commits if there are no remaining conflicts
+ * Only stages the specific resolved files and commits if there are no remaining conflicts
  */
-export async function completeMerge(workDir: string, resolvedFiles?: string[]): Promise<boolean> {
+export async function completeMerge(workDir: string, resolvedFiles: string[]): Promise<boolean> {
 	const git: SimpleGit = simpleGit(workDir);
 	try {
 		// Verify no conflicts remain
@@ -158,18 +158,9 @@ export async function completeMerge(workDir: string, resolvedFiles?: string[]): 
 			return false;
 		}
 
-		// Only stage the specific resolved files if provided, otherwise stage all
-		if (resolvedFiles && resolvedFiles.length > 0) {
-			for (const file of resolvedFiles) {
-				await git.add(file);
-			}
-		} else {
-			// Check if we're in a merge state and just need to commit
-			const status = await git.status();
-			if (status.staged.length === 0) {
-				// Nothing staged, stage all modified files
-				await git.add(".");
-			}
+		// Stage only the specific resolved files to avoid staging unrelated changes
+		for (const file of resolvedFiles) {
+			await git.add(file);
 		}
 
 		// Use --no-edit to preserve Git's prepared merge message
