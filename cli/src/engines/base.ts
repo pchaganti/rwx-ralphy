@@ -9,7 +9,7 @@ const isWindows = process.platform === "win32";
  * Resolve a command to its full executable path (needed for Windows)
  */
 function resolveCommand(command: string): string {
-	if (!isWindows || isBun) return command;
+	if (!isWindows) return command;
 	try {
 		const result = spawnSync("where", [command], { encoding: "utf8", stdio: "pipe" });
 		if (result.status !== 0) return command;
@@ -53,7 +53,8 @@ export async function execCommand(
 	env?: Record<string, string>,
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
 	if (isBun) {
-		const proc = Bun.spawn([command, ...args], {
+		const resolvedCommand = resolveCommand(command);
+		const proc = Bun.spawn([resolvedCommand, ...args], {
 			cwd: workDir,
 			stdout: "pipe",
 			stderr: "pipe",
@@ -186,7 +187,8 @@ export async function execCommandStreaming(
 	env?: Record<string, string>,
 ): Promise<{ exitCode: number }> {
 	if (isBun) {
-		const proc = Bun.spawn([command, ...args], {
+		const resolvedCommand = resolveCommand(command);
+		const proc = Bun.spawn([resolvedCommand, ...args], {
 			cwd: workDir,
 			stdout: "pipe",
 			stderr: "pipe",
