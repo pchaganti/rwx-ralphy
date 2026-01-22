@@ -115,11 +115,11 @@ export class CachedTaskSource implements TaskSource {
 			return;
 		}
 
-		// Write all pending completions to inner source
+		// Write pending completions, removing each after success to avoid duplicates on retry
 		for (const id of this.pendingCompletions) {
 			await this.inner.markComplete(id);
+			this.pendingCompletions.delete(id);
 		}
-		this.pendingCompletions.clear();
 
 		// Invalidate cache so next read picks up any external changes
 		this.cachedTasks = null;
