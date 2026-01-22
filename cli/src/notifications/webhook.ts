@@ -117,7 +117,7 @@ export async function sendNotifications(
 		return;
 	}
 
-	const { discord_webhook, slack_webhook, custom_webhook } = config.notifications;
+	if (discord_webhook && discord_webhook.trim() !== "") {
 
 	const tasks: Promise<void>[] = [];
 
