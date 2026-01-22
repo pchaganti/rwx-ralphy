@@ -153,6 +153,7 @@ export class CachedTaskSource implements TaskSource {
 			this.flushTimer = null;
 			this.flush().catch((err) => {
 				console.error("CachedTaskSource: Failed to flush:", err);
+				this.scheduleFlush(); // Retry on failure
 			});
 		}, this.flushIntervalMs);
 	}
