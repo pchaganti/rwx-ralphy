@@ -14,8 +14,12 @@ function resolveCommand(command: string): string {
 		const result = spawnSync("where", [command], { encoding: "utf8", stdio: "pipe" });
 		if (result.status !== 0) return command;
 		const paths = result.stdout.trim().split(/\r?\n/);
-		// Return first path (the one that would be executed)
-		return paths[0] || command;
+		// Prefer .cmd files over .ps1 since Bun cannot spawn .ps1 directly
+		const cmdPath = paths.find((p) => p.toLowerCase().endsWith(".cmd"));
+		if (cmdPath) return cmdPath;
+		// Fall back to first non-.ps1 path, or first path if all are .ps1
+		const nonPs1Path = paths.find((p) => !p.toLowerCase().endsWith(".ps1"));
+		return nonPs1Path || paths[0] || command;
 	} catch {
 		return command;
 	}
