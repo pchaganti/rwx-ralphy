@@ -71,7 +71,6 @@ export async function execCommand(
 			env: { ...process.env, ...env },
 			stdio: [stdinContent ? "pipe" : "ignore", "pipe", "pipe"],
 			shell: isWindows, // Required on Windows for npm global commands (.cmd wrappers)
-			windowsVerbatimArguments: isWindows, // Prevent double-escaping on Windows when using shell
 		});
 
 		// Write stdin content if provided
@@ -222,7 +221,6 @@ export async function execCommandStreaming(
 			env: { ...process.env, ...env },
 			stdio: [stdinContent ? "pipe" : "ignore", "pipe", "pipe"],
 			shell: isWindows, // Required on Windows for npm global commands (.cmd wrappers)
-			windowsVerbatimArguments: isWindows, // Prevent double-escaping on Windows when using shell
 		});
 
 		// Write stdin content if provided
