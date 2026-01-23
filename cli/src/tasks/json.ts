@@ -48,6 +48,13 @@ export class JsonTaskSource implements TaskSource {
 		if (!data.tasks || !Array.isArray(data.tasks)) {
 			throw new Error("Invalid JSON task file: 'tasks' array is required");
 		}
+		const titles = new Set<string>();
+		for (const task of data.tasks) {
+			if (titles.has(task.title)) {
+				throw new Error(`Duplicate JSON task title: ${task.title}`);
+			}
+			titles.add(task.title);
+		}
 		return (data.tasks || [])
 			.filter((task) => !task.completed)
 			.map((task) => ({

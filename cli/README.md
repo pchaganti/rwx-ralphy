@@ -127,6 +127,7 @@ ralphy --json PRD.json
   ]
 }
 ```
+Titles must be unique.
 
 **GitHub Issues**:
 ```bash
