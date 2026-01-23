@@ -63,14 +63,26 @@ export async function runTask(task: string, options: RuntimeOptions): Promise<vo
 			async () => {
 				spinner.updateStep("Working");
 
+				// Build engine options
+				const engineOptions = {
+					...(options.modelOverride && { modelOverride: options.modelOverride }),
+					...(options.engineArgs &&
+						options.engineArgs.length > 0 && { engineArgs: options.engineArgs }),
+				};
+
 				// Use streaming if available
 				if (engine.executeStreaming) {
-					return await engine.executeStreaming(prompt, workDir, (step) => {
-						spinner.updateStep(step);
-					});
+					return await engine.executeStreaming(
+						prompt,
+						workDir,
+						(step) => {
+							spinner.updateStep(step);
+						},
+						engineOptions,
+					);
 				}
 
-				const res = await engine.execute(prompt, workDir);
+				const res = await engine.execute(prompt, workDir, engineOptions);
 
 				if (!res.success && res.error && isRetryableError(res.error)) {
 					throw new Error(res.error);

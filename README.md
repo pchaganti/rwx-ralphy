@@ -101,6 +101,23 @@ ralphy --opencode --model opencode/glm-4.7-free "task" # custom OpenCode model
 ralphy --qwen --model qwen-max "build api"             # custom Qwen model
 ```
 
+### Engine-Specific Arguments
+
+Pass additional arguments to the underlying engine CLI using `--` separator:
+
+```bash
+# Pass copilot-specific arguments
+ralphy --copilot --model "claude-opus-4.5" --prd PRD.md -- --allow-all-tools --allow-all-urls --stream on
+
+# Pass claude-specific arguments  
+ralphy --claude "add feature" -- --no-permissions-prompt
+
+# Works with any engine
+ralphy --cursor "fix bug" -- --custom-arg value
+```
+
+Everything after `--` is passed directly to the engine CLI without interpretation.
+
 ## Task Sources
 
 **Markdown file** (default):

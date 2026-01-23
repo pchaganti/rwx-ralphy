@@ -21,6 +21,10 @@ export class DroidEngine extends BaseAIEngine {
 		if (options?.modelOverride) {
 			args.push("--model", options.modelOverride);
 		}
+		// Add any additional engine-specific arguments
+		if (options?.engineArgs && options.engineArgs.length > 0) {
+			args.push(...options.engineArgs);
+		}
 
 		// On Windows, pass prompt via stdin to avoid cmd.exe argument parsing issues
 		let stdinContent: string | undefined;
@@ -97,6 +101,10 @@ export class DroidEngine extends BaseAIEngine {
 		const args = ["exec", "--output-format", "stream-json", "--auto", "medium"];
 		if (options?.modelOverride) {
 			args.push("--model", options.modelOverride);
+		}
+		// Add any additional engine-specific arguments
+		if (options?.engineArgs && options.engineArgs.length > 0) {
+			args.push(...options.engineArgs);
 		}
 
 		// On Windows, pass prompt via stdin to avoid cmd.exe argument parsing issues

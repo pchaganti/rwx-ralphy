@@ -38,6 +38,10 @@ export class CopilotEngine extends BaseAIEngine {
 		if (options?.modelOverride) {
 			args.push("--model", options.modelOverride);
 		}
+		// Add any additional engine-specific arguments
+		if (options?.engineArgs && options.engineArgs.length > 0) {
+			args.push(...options.engineArgs);
+		}
 		return { args, stdinContent };
 	}
 

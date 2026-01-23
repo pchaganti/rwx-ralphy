@@ -122,13 +122,21 @@ interface ParallelPromptOptions {
 	skipTests?: boolean;
 	skipLint?: boolean;
 	browserEnabled?: "auto" | "true" | "false";
+	allowCommit?: boolean;
 }
 
 /**
  * Build a prompt for parallel agent execution
  */
 export function buildParallelPrompt(options: ParallelPromptOptions): string {
-	const { task, progressFile, skipTests = false, skipLint = false, browserEnabled = "auto" } = options;
+	const {
+		task,
+		progressFile,
+		skipTests = false,
+		skipLint = false,
+		browserEnabled = "auto",
+		allowCommit = true,
+	} = options;
 
 	// Parallel execution typically runs in a worktree; we still try to detect skills from CWD.
 	// If callers pass a workDir in the future, prefer that instead.
@@ -137,10 +145,14 @@ export function buildParallelPrompt(options: ParallelPromptOptions): string {
 		skillRoots.length > 0
 			? `\n\nAgent Skills:\nThis repo includes skill/playbook docs:\n${skillRoots
 					.map((p) => `- ${p}`)
-					.join("\n")}\nBefore coding, read relevant skills. If your engine supports a \`skill\` tool, load them before implementing.`
+					.join(
+						"\n",
+					)}\nBefore coding, read relevant skills. If your engine supports a \`skill\` tool, load them before implementing.`
 			: "";
 
-	const browserSection = isBrowserAvailable(browserEnabled) ? `\n\n${getBrowserInstructions()}` : "";
+	const browserSection = isBrowserAvailable(browserEnabled)
+		? `\n\n${getBrowserInstructions()}`
+		: "";
 
 	const instructions = ["1. Implement this specific task completely"];
 
@@ -159,7 +171,11 @@ export function buildParallelPrompt(options: ParallelPromptOptions): string {
 
 	instructions.push(`${step}. Update ${progressFile} with what you did`);
 	step++;
-	instructions.push(`${step}. Commit your changes with a descriptive message`);
+	if (allowCommit) {
+		instructions.push(`${step}. Commit your changes with a descriptive message`);
+	} else {
+		instructions.push(`${step}. Do NOT run git commit; changes will be collected automatically`);
+	}
 
 	return `You are working on a specific task. Focus ONLY on this task:
 

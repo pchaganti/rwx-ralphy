@@ -22,6 +22,10 @@ export class ClaudeEngine extends BaseAIEngine {
 		if (options?.modelOverride) {
 			args.push("--model", options.modelOverride);
 		}
+		// Add any additional engine-specific arguments
+		if (options?.engineArgs && options.engineArgs.length > 0) {
+			args.push(...options.engineArgs);
+		}
 
 		// On Windows, pass prompt via stdin to avoid cmd.exe argument parsing issues with multi-line content
 		// On other platforms, pass as argument for compatibility
@@ -75,6 +79,10 @@ export class ClaudeEngine extends BaseAIEngine {
 		const args = ["--dangerously-skip-permissions", "--verbose", "--output-format", "stream-json"];
 		if (options?.modelOverride) {
 			args.push("--model", options.modelOverride);
+		}
+		// Add any additional engine-specific arguments
+		if (options?.engineArgs && options.engineArgs.length > 0) {
+			args.push(...options.engineArgs);
 		}
 
 		// On Windows, pass prompt via stdin to avoid cmd.exe argument parsing issues with multi-line content
