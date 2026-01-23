@@ -8,8 +8,6 @@ import {
 } from "./base.ts";
 import type { AIResult, EngineOptions, ProgressCallback } from "./types.ts";
 
-const isWindows = process.platform === "win32";
-
 /**
  * GitHub Copilot CLI AI Engine
  */
@@ -19,22 +17,18 @@ export class CopilotEngine extends BaseAIEngine {
 
 	/**
 	 * Build command arguments for Copilot CLI
-	 * Returns args array and optional stdin content for Windows
 	 */
 	private buildArgs(
 		prompt: string,
 		options?: EngineOptions,
-	): { args: string[]; stdinContent?: string } {
+	): { args: string[] } {
 		const args: string[] = [];
 
-		// On Windows, pass prompt via stdin to avoid cmd.exe argument parsing issues
-		let stdinContent: string | undefined;
-		if (isWindows) {
-			args.push("-p");
-			stdinContent = prompt;
-		} else {
-			args.push("-p", prompt);
-		}
+		// Required for non-interactive mode: allow all tools to run without confirmation
+		args.push("--allow-all-tools");
+
+		// Pass prompt directly as argument (Copilot CLI requires -p with value, not stdin)
+		args.push("-p", prompt);
 
 		if (options?.modelOverride) {
 			args.push("--model", options.modelOverride);
@@ -43,33 +37,43 @@ export class CopilotEngine extends BaseAIEngine {
 		if (options?.engineArgs && options.engineArgs.length > 0) {
 			args.push(...options.engineArgs);
 		}
-		return { args, stdinContent };
+		return { args };
 	}
 
 	async execute(prompt: string, workDir: string, options?: EngineOptions): Promise<AIResult> {
-		const { args, stdinContent } = this.buildArgs(prompt, options);
+		const { args } = this.buildArgs(prompt, options);
 
 		const startTime = Date.now();
 		const { stdout, stderr, exitCode } = await execCommand(
 			this.cliCommand,
 			args,
 			workDir,
-			undefined,
-			stdinContent,
 		);
 		const durationMs = Date.now() - startTime;
 
 		const output = stdout + stderr;
 
-		// Check for errors
-		const error = checkForErrors(output);
-		if (error) {
+		// Check for JSON errors (from base)
+		const jsonError = checkForErrors(output);
+		if (jsonError) {
 			return {
 				success: false,
 				response: "",
 				inputTokens: 0,
 				outputTokens: 0,
-				error,
+				error: jsonError,
+			};
+		}
+
+		// Check for Copilot-specific errors (plain text)
+		const copilotError = this.checkCopilotErrors(output);
+		if (copilotError) {
+			return {
+				success: false,
+				response: "",
+				inputTokens: 0,
+				outputTokens: 0,
+				error: copilotError,
 			};
 		}
 
@@ -94,6 +98,42 @@ export class CopilotEngine extends BaseAIEngine {
 			outputTokens: 0,
 			cost: durationMs > 0 ? `duration:${durationMs}` : undefined,
 		};
+	}
+
+	/**
+	 * Check for Copilot-specific errors in output
+	 * Copilot CLI outputs plain text errors (not JSON) and may return exit code 0
+	 */
+	private checkCopilotErrors(output: string): string | null {
+		const lower = output.toLowerCase();
+		const trimmed = output.trim();
+
+		// Authentication errors
+		if (lower.includes("no authentication") || lower.includes("not authenticated")) {
+			return "GitHub Copilot CLI is not authenticated. Run 'copilot' and use '/login' to authenticate, or set COPILOT_GITHUB_TOKEN environment variable.";
+		}
+
+		// Rate limiting
+		if (lower.includes("rate limit") || lower.includes("too many requests")) {
+			return "GitHub Copilot rate limit exceeded. Please wait and try again.";
+		}
+
+		// Network errors
+		if (lower.includes("network error") || lower.includes("connection refused")) {
+			return "Network error connecting to GitHub Copilot. Check your internet connection.";
+		}
+
+		// Generic error detection - check trimmed output and case-insensitive
+		if (trimmed.toLowerCase().startsWith("error:") || lower.includes("\nerror:")) {
+			// Extract the error message
+			const match = output.match(/error:\s*(.+?)(?:\n|$)/i);
+			if (match) {
+				return match[1].trim();
+			}
+			return "GitHub Copilot CLI returned an error";
+		}
+
+		return null;
 	}
 
 	private parseOutput(output: string): string {
@@ -124,7 +164,7 @@ export class CopilotEngine extends BaseAIEngine {
 		onProgress: ProgressCallback,
 		options?: EngineOptions,
 	): Promise<AIResult> {
-		const { args, stdinContent } = this.buildArgs(prompt, options);
+		const { args } = this.buildArgs(prompt, options);
 
 		const outputLines: string[] = [];
 		const startTime = Date.now();
@@ -142,22 +182,32 @@ export class CopilotEngine extends BaseAIEngine {
 					onProgress(step);
 				}
 			},
-			undefined,
-			stdinContent,
 		);
 
 		const durationMs = Date.now() - startTime;
 		const output = outputLines.join("\n");
 
-		// Check for errors
-		const error = checkForErrors(output);
-		if (error) {
+		// Check for JSON errors (from base)
+		const jsonError = checkForErrors(output);
+		if (jsonError) {
 			return {
 				success: false,
 				response: "",
 				inputTokens: 0,
 				outputTokens: 0,
-				error,
+				error: jsonError,
+			};
+		}
+
+		// Check for Copilot-specific errors (plain text)
+		const copilotError = this.checkCopilotErrors(output);
+		if (copilotError) {
+			return {
+				success: false,
+				response: "",
+				inputTokens: 0,
+				outputTokens: 0,
+				error: copilotError,
 			};
 		}
 

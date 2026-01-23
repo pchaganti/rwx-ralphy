@@ -216,6 +216,8 @@ export async function runSequential(options: ExecutionOptions): Promise<Executio
 						logTaskProgress(task.title, "failed", workDir);
 						result.tasksFailed++;
 						notifyTaskFailed(task.title, errMsg);
+						// Mark task complete so we don't retry it infinitely
+						await taskSource.markComplete(task.id);
 						clearDeferredTask(taskSource.type, task, workDir, options.prdFile);
 					}
 				}
@@ -241,6 +243,8 @@ export async function runSequential(options: ExecutionOptions): Promise<Executio
 					logTaskProgress(task.title, "failed", workDir);
 					result.tasksFailed++;
 					notifyTaskFailed(task.title, errorMsg);
+					// Mark task complete so we don't retry it infinitely
+					await taskSource.markComplete(task.id);
 					clearDeferredTask(taskSource.type, task, workDir, options.prdFile);
 				}
 			}
