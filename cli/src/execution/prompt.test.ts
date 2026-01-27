@@ -73,8 +73,6 @@ boundaries:
 			expect(legacyIndex).toBeGreaterThan(prdIndex);
 		});
 
-
-
 		it("should always include boundaries section even without user-defined boundaries", () => {
 			const result = buildPrompt({
 				task: "Test task",
@@ -255,6 +253,18 @@ rules:
 });
 
 describe("buildParallelPrompt", () => {
+	describe("Rules Section", () => {
+		it("should include rules section with code change rules", () => {
+			const result = buildParallelPrompt({
+				task: "Implement feature",
+				progressFile: ".ralphy/progress.txt",
+			});
+
+			expect(result).toContain("Rules (you MUST follow these):");
+			expect(result).toContain("Keep changes focused and minimal. Do not refactor unrelated code.");
+		});
+	});
+
 	describe("Boundaries Section", () => {
 		it("should include boundaries section with system files", () => {
 			const result = buildParallelPrompt({
@@ -278,15 +288,6 @@ describe("buildParallelPrompt", () => {
 
 			expect(result).toContain("- docs/project.prd.md");
 			expect(result).not.toContain("- the PRD file");
-		});
-
-		it("should include 'keep changes focused' in boundaries section", () => {
-			const result = buildParallelPrompt({
-				task: "Implement feature",
-				progressFile: ".ralphy/progress.txt",
-			});
-
-			expect(result).toContain("Keep changes focused and minimal");
 		});
 
 		it("should include 'do not mark tasks complete' in boundaries section", () => {
@@ -401,6 +402,18 @@ describe("buildParallelPrompt", () => {
 	});
 
 	describe("Boundaries Placement", () => {
+		it("should have rules section before boundaries", () => {
+			const result = buildParallelPrompt({
+				task: "Test task",
+				progressFile: ".ralphy/progress.txt",
+			});
+
+			const rulesIndex = result.indexOf("Rules (you MUST follow these):");
+			const boundariesIndex = result.indexOf("Boundaries - Do NOT modify:");
+
+			expect(rulesIndex).toBeLessThan(boundariesIndex);
+		});
+
 		it("should have boundaries section before instructions", () => {
 			const result = buildParallelPrompt({
 				task: "Test task",

@@ -57,7 +57,9 @@ export function buildPrompt(options: PromptOptions): string {
 		...rules,
 	];
 	if (codeChangeRules.length > 0) {
-		parts.push(`## Rules (you MUST follow these)\n${codeChangeRules.join("\n")}`);
+		parts.push(
+			`## Rules (you MUST follow these)\n${codeChangeRules.map((r) => `- ${r}`).join("\n")}`,
+		);
 	}
 
 	// Add boundaries - combine system boundaries with user-defined boundaries
@@ -70,7 +72,9 @@ export function buildPrompt(options: PromptOptions): string {
 		".ralphy-sandboxes",
 	];
 	const allBoundaries = [...systemBoundaries, ...userBoundaries];
-	parts.push(`## Boundaries\nDo NOT modify these files/directories:\n${allBoundaries.map((b) => `- ${b}`).join("\n")}`);
+	parts.push(
+		`## Boundaries\nDo NOT modify these files/directories:\n${allBoundaries.map((b) => `- ${b}`).join("\n")}`,
+	);
 
 	// Agent skills/playbooks (optional)
 	const skillRoots = detectAgentSkills(workDir);
@@ -165,6 +169,17 @@ export function buildParallelPrompt(options: ParallelPromptOptions): string {
 		? `\n\n${getBrowserInstructions()}`
 		: "";
 
+	// Load rules from config
+	const rules = loadRules(process.cwd());
+	const codeChangeRules = [
+		"Keep changes focused and minimal. Do not refactor unrelated code.",
+		...rules,
+	];
+	const rulesSection =
+		codeChangeRules.length > 0
+			? `\n\nRules (you MUST follow these):\n${codeChangeRules.map((r) => `- ${r}`).join("\n")}`
+			: "";
+
 	// Build boundaries section with system files first
 	const boundariesList = [
 		prdFile || "the PRD file",
@@ -172,7 +187,7 @@ export function buildParallelPrompt(options: ParallelPromptOptions): string {
 		".ralphy-worktrees",
 		".ralphy-sandboxes",
 	];
-	const boundariesSection = `\n\nBoundaries - Do NOT modify:\n${boundariesList.map((b) => `- ${b}`).join("\n")}\n\nDo NOT mark tasks complete - that will be handled separately.\nKeep changes focused and minimal. Do not refactor unrelated code.`;
+	const boundariesSection = `\n\nBoundaries - Do NOT modify:\n${boundariesList.map((b) => `- ${b}`).join("\n")}\n\nDo NOT mark tasks complete - that will be handled separately.`;
 
 	const instructions = ["1. Implement this specific task completely"];
 
@@ -199,7 +214,7 @@ export function buildParallelPrompt(options: ParallelPromptOptions): string {
 
 	return `You are working on a specific task. Focus ONLY on this task:
 
-TASK: ${task}${boundariesSection}${browserSection}${skillsSection}
+TASK: ${task}${rulesSection}${boundariesSection}${browserSection}${skillsSection}
 
 Instructions:
 ${instructions.join("\n")}
