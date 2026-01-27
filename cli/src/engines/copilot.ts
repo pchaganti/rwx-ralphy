@@ -27,23 +27,22 @@ export class CopilotEngine extends BaseAIEngine {
 
 	/**
 	 * Sanitize prompt for command line.
-	 * On Windows, newlines and special characters cause issues with cmd.exe argument parsing.
-	 * We flatten the prompt to a single line and escape special characters.
+	 * On Windows, newlines cause issues with cmd.exe argument parsing.
+	 * We flatten the prompt to a single line.
+	 *
+	 * Note: When Bun spawns via cmd.exe /c, arguments containing spaces are
+	 * automatically wrapped in double quotes. Inside quoted strings, cmd.exe
+	 * does NOT interpret &, |, <, >, ^ as special characters. Only double
+	 * quotes need escaping (by doubling them).
 	 */
 	private sanitizePrompt(prompt: string): string {
 		// Replace all newlines with spaces, collapse multiple spaces
 		let sanitized = prompt.replace(/\r?\n/g, " ").replace(/\s+/g, " ").trim();
 
 		if (isWindows) {
-			// Escape characters that are special in cmd.exe
-			// Order matters - escape carets first since they're the escape char
-			sanitized = sanitized
-				.replace(/\^/g, "^^") // Escape carets first
-				.replace(/&/g, "^&") // Escape ampersands
-				.replace(/</g, "^<") // Escape less-than
-				.replace(/>/g, "^>") // Escape greater-than
-				.replace(/\|/g, "^|") // Escape pipes
-				.replace(/"/g, '""'); // Escape double quotes by doubling
+			// Inside double-quoted strings, only double quotes need escaping
+			// cmd.exe interprets "" as a literal " within quoted arguments
+			sanitized = sanitized.replace(/"/g, '""');
 		}
 
 		return sanitized;
