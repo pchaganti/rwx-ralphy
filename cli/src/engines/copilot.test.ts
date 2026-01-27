@@ -46,12 +46,7 @@ describe("CopilotEngine", () => {
 				async (_cmd: string, args: string[]) => {
 					const pIndex = args.indexOf("-p");
 					if (pIndex !== -1 && pIndex + 1 < args.length) {
-						// Remove quotes from the captured path
-						const quotedPath = args[pIndex + 1];
-						const unquotedPath = quotedPath.startsWith('"') && quotedPath.endsWith('"')
-							? quotedPath.slice(1, -1)
-							: quotedPath;
-						capturedPaths.push(unquotedPath);
+						capturedPaths.push(args[pIndex + 1]);
 					}
 					return {
 						stdout: "model-name 10 in, 5 out, 0 cached\nTask completed",
@@ -88,11 +83,7 @@ describe("CopilotEngine", () => {
 				async (_cmd: string, args: string[]) => {
 					const pIndex = args.indexOf("-p");
 					if (pIndex !== -1 && pIndex + 1 < args.length) {
-						// Remove quotes from the captured path
-						const quotedPath = args[pIndex + 1];
-						capturedFilePath = quotedPath.startsWith('"') && quotedPath.endsWith('"')
-							? quotedPath.slice(1, -1)
-							: quotedPath;
+						capturedFilePath = args[pIndex + 1];
 						// Read file content while it exists (before cleanup)
 						if (existsSync(capturedFilePath)) {
 							fileContentDuringExec = readFileSync(capturedFilePath, "utf-8");
@@ -141,11 +132,7 @@ function test() {
 				async (_cmd: string, args: string[]) => {
 					const pIndex = args.indexOf("-p");
 					if (pIndex !== -1 && pIndex + 1 < args.length) {
-						// Remove quotes from the captured path
-						const quotedPath = args[pIndex + 1];
-						capturedFilePath = quotedPath.startsWith('"') && quotedPath.endsWith('"')
-							? quotedPath.slice(1, -1)
-							: quotedPath;
+						capturedFilePath = args[pIndex + 1];
 						// Read file content while it exists (before cleanup)
 						if (existsSync(capturedFilePath)) {
 							fileContentDuringExec = readFileSync(capturedFilePath, "utf-8");
@@ -176,11 +163,7 @@ function test() {
 				async (_cmd: string, args: string[]) => {
 					const pIndex = args.indexOf("-p");
 					if (pIndex !== -1 && pIndex + 1 < args.length) {
-						// Remove quotes from the captured path
-						const quotedPath = args[pIndex + 1];
-						capturedFilePath = quotedPath.startsWith('"') && quotedPath.endsWith('"')
-							? quotedPath.slice(1, -1)
-							: quotedPath;
+						capturedFilePath = args[pIndex + 1];
 					}
 					expect(existsSync(capturedFilePath)).toBe(true);
 					return {
@@ -205,11 +188,7 @@ function test() {
 				async (_cmd: string, args: string[]) => {
 					const pIndex = args.indexOf("-p");
 					if (pIndex !== -1 && pIndex + 1 < args.length) {
-						// Remove quotes from the captured path
-						const quotedPath = args[pIndex + 1];
-						capturedFilePath = quotedPath.startsWith('"') && quotedPath.endsWith('"')
-							? quotedPath.slice(1, -1)
-							: quotedPath;
+						capturedFilePath = args[pIndex + 1];
 					}
 					return {
 						stdout: "",
@@ -234,11 +213,7 @@ function test() {
 				async (_cmd: string, args: string[]) => {
 					const pIndex = args.indexOf("-p");
 					if (pIndex !== -1 && pIndex + 1 < args.length) {
-						// Remove quotes from the captured path
-						const quotedPath = args[pIndex + 1];
-						capturedFilePath = quotedPath.startsWith('"') && quotedPath.endsWith('"')
-							? quotedPath.slice(1, -1)
-							: quotedPath;
+						capturedFilePath = args[pIndex + 1];
 						if (existsSync(capturedFilePath)) {
 							rmSync(capturedFilePath);
 						}
@@ -316,8 +291,9 @@ function test() {
 			const pIndex = capturedArgs.indexOf("-p");
 			expect(pIndex).not.toBe(-1);
 			expect(pIndex + 1).toBeLessThan(capturedArgs.length);
-			// Path should be quoted
-			expect(capturedArgs[pIndex + 1]).toMatch(/^".*prompt-[0-9a-f-]+\.md"$/);
+			// Path should NOT be quoted - quotes become literal characters on non-Windows
+			expect(capturedArgs[pIndex + 1]).toMatch(/prompt-[0-9a-f-]+\.md$/);
+			expect(capturedArgs[pIndex + 1]).not.toMatch(/^"/);
 
 			spy.mockRestore();
 		});
@@ -367,7 +343,7 @@ function test() {
 			spy.mockRestore();
 		});
 
-		it("should quote file paths to handle spaces and special characters", async () => {
+		it("should pass file paths without quotes for cross-platform compatibility", async () => {
 			let capturedArgs: string[] = [];
 
 			const spy = spyOn(baseModule, "execCommand").mockImplementation(
@@ -385,12 +361,11 @@ function test() {
 
 			const pIndex = capturedArgs.indexOf("-p");
 			const pathArg = capturedArgs[pIndex + 1];
-			// The path should be wrapped in quotes
-			expect(pathArg).toMatch(/^".+"$/);
-			// Extract the unquoted path
-			const unquotedPath = pathArg.slice(1, -1);
-			// The unquoted path should still be a valid path
-			expect(unquotedPath).toMatch(/prompt-[0-9a-f-]+\.md$/);
+			// The path should NOT be quoted - quotes become literal on non-shell execution
+			expect(pathArg).not.toMatch(/^"/);
+			expect(pathArg).not.toMatch(/"$/);
+			// The path should be a valid file path
+			expect(pathArg).toMatch(/prompt-[0-9a-f-]+\.md$/);
 
 			spy.mockRestore();
 		});
