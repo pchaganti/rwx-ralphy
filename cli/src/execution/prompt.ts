@@ -55,6 +55,10 @@ export function buildPrompt(options: PromptOptions): string {
 	const rules = loadRules(workDir);
 	const codeChangeRules = [
 		"Keep changes focused and minimal. Do not refactor unrelated code.",
+		"One logical change per commit. If a task is too large, break it into subtasks.",
+		"Write concise code. Avoid over-engineering.",
+		"Don't leave dead code. Delete unused code completely.",
+		"Quality over speed. Small steps compound into big progress.",
 		...rules,
 	];
 	if (codeChangeRules.length > 0) {
@@ -175,6 +179,10 @@ export function buildParallelPrompt(options: ParallelPromptOptions): string {
 	const rules = loadRules(workDir);
 	const codeChangeRules = [
 		"Keep changes focused and minimal. Do not refactor unrelated code.",
+		"One logical change per commit. If a task is too large, break it into subtasks.",
+		"Write concise code. Avoid over-engineering.",
+		"Don't leave dead code. Delete unused code completely.",
+		"Quality over speed. Small steps compound into big progress.",
 		...rules,
 	];
 	const rulesSection =

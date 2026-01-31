@@ -444,6 +444,21 @@ When an engine exits non-zero, ralphy includes the last lines of CLI output in t
 ### v1.0.0
 - initial release
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+
+**Key principles:**
+- Keep changes small and focused - one logical change per commit
+- Break large tasks into micro-tasks
+- Quality over speed
+- Don't leave dead code
+- Fight entropy - leave the codebase better than you found it
+
+AI coding assistants can reference:
+- [CLAUDE.md](CLAUDE.md) - Claude Code instructions
+- [.cursorrules](.cursorrules) - Cursor IDE rules
+
 ## Community
 
 - [Discord](https://rasmic.link/discord)

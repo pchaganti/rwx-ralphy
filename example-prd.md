@@ -3,18 +3,40 @@
 This is an example PRD (Product Requirements Document) in Markdown format.
 Ralphy will execute each unchecked task sequentially using your chosen AI engine.
 
+## Best Practice: Micro-Tasks
+
+Break large tasks into micro-tasks. Smaller tasks = better code quality.
+
+**Bad:** `- [ ] Implement user authentication`
+**Good:**
+```
+- [ ] Create User model with email and password fields
+- [ ] Add password hashing utility function
+- [ ] Create signup API endpoint
+- [ ] Create login API endpoint
+- [ ] Add session/token generation
+- [ ] Create logout endpoint
+```
+
 ## Project Setup
 
 - [ ] Initialize the project with the chosen framework
-- [ ] Set up the development environment and install dependencies
-- [ ] Configure linting and formatting tools (ESLint, Prettier)
+- [ ] Install production dependencies
+- [ ] Install development dependencies
+- [ ] Configure ESLint with recommended rules
+- [ ] Configure Prettier for code formatting
+- [ ] Add pre-commit hooks for linting
 
 ## Core Features
 
-- [ ] Create the main application layout and navigation
-- [ ] Implement user authentication (login, signup, logout)
-- [ ] Build the dashboard page with key metrics
-- [ ] Add data fetching and state management
+- [ ] Create base layout component with header and footer
+- [ ] Add navigation component with routing
+- [ ] Create login form component
+- [ ] Create signup form component
+- [ ] Add logout button functionality
+- [ ] Build dashboard page skeleton
+- [ ] Add dashboard metrics cards
+- [ ] Implement data fetching hooks
 
 ## Database & API
 
