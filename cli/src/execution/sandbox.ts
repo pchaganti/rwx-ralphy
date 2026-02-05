@@ -26,7 +26,7 @@ import { logDebug, logWarn } from "../ui/logger.ts";
 export async function rmRF(path: string): Promise<void> {
 	if (!existsSync(path)) return;
 
-	let retries = 5;
+	const retries = 5;
 	for (let i = 0; i < retries; i++) {
 		try {
 			// Using force: true and recursive: true is standard
@@ -34,20 +34,22 @@ export async function rmRF(path: string): Promise<void> {
 			return;
 		} catch (err: any) {
 			const isLockError = err.code === "EBUSY" || err.code === "EPERM" || err.code === "ENOTEMPTY";
-			
+
 			if (isLockError && i < retries - 1) {
 				// Wait with exponential backoff: 500, 1000, 2000, 4000...
 				const delay = 500 * Math.pow(2, i);
 				await new Promise((resolve) => setTimeout(resolve, delay));
 				continue;
 			}
-			
+
 			// On final failure for lock errors, log warning and swallow.
 			// For non-lock errors (any time), throw immediately.
 			if (isLockError && i === retries - 1) {
-				logWarn(`Failed to clean up ${path} after ${retries} attempts: ${err.message}. This may be due to a file lock. Proceeding anyway.`);
+				logWarn(
+					`Failed to clean up ${path} after ${retries} attempts: ${err.message}. This may be due to a file lock. Proceeding anyway.`,
+				);
 			} else {
-				throw err; 
+				throw err;
 			}
 		}
 	}

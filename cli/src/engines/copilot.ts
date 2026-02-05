@@ -277,7 +277,9 @@ export class CopilotEngine extends BaseAIEngine {
 				!trimmed.startsWith("Total session") && // Stats section
 				!trimmed.startsWith("Total code") && // Stats section
 				!trimmed.startsWith("Breakdown by") && // Stats section header
-				!trimmed.match(/^\s*\S+\s+\d+(?:\.\d+)?[km]?\s+in,\s+\d+(?:\.\d+)?[km]?\s+out,\s+\d+(?:\.\d+)?[km]?\s+cached/) // Token count lines (model stats: "model-name 17.5k in, 73 out, 11.8k cached")
+				!trimmed.match(
+					/^\s*\S+\s+\d+(?:\.\d+)?[km]?\s+in,\s+\d+(?:\.\d+)?[km]?\s+out,\s+\d+(?:\.\d+)?[km]?\s+cached/,
+				) // Token count lines (model stats: "model-name 17.5k in, 73 out, 11.8k cached")
 			);
 		});
 
