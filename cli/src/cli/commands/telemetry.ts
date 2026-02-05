@@ -1,10 +1,10 @@
 import pc from "picocolors";
 import {
-	exportTelemetry,
+	type ExportFormat,
 	exportAllFormats,
+	exportTelemetry,
 	getTelemetrySummary,
 	hasTelemetryData,
-	type ExportFormat,
 } from "../../telemetry/index.ts";
 import { logError, logInfo, logSuccess, logWarn } from "../../ui/logger.ts";
 
@@ -17,7 +17,7 @@ export async function exportTelemetryCommand(
 		outputDir?: string;
 		outputPath?: string;
 		all?: boolean;
-	}
+	},
 ): Promise<void> {
 	const outputDir = options?.outputDir || ".ralphy/telemetry";
 
@@ -63,9 +63,7 @@ export async function exportTelemetryCommand(
 /**
  * Show telemetry summary/stats
  */
-export async function showTelemetryStats(
-	outputDir?: string
-): Promise<void> {
+export async function showTelemetryStats(outputDir?: string): Promise<void> {
 	const dir = outputDir || ".ralphy/telemetry";
 
 	const hasData = await hasTelemetryData({ outputDir: dir });

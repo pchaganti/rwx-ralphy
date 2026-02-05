@@ -32,7 +32,11 @@ export async function runLoop(options: RuntimeOptions): Promise<void> {
 	setVerbose(options.verbose);
 
 	// Validate PRD source
-	if (options.prdSource === "markdown" || options.prdSource === "yaml" || options.prdSource === "json") {
+	if (
+		options.prdSource === "markdown" ||
+		options.prdSource === "yaml" ||
+		options.prdSource === "json"
+	) {
 		if (!existsSync(options.prdFile)) {
 			logError(`${options.prdFile} not found in current directory`);
 			logInfo(`Create a ${options.prdFile} file with tasks`);

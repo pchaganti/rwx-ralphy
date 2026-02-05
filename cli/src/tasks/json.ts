@@ -35,7 +35,7 @@ export class JsonTaskSource implements TaskSource {
 
 	private writeFile(data: JsonTaskFile): void {
 		try {
-		writeFileSync(this.filePath, JSON.stringify(data, null, 2), "utf-8");
+			writeFileSync(this.filePath, JSON.stringify(data, null, 2), "utf-8");
 		} catch (error) {
 			throw new Error(
 				`Failed to write JSON task file: ${error instanceof Error ? error.message : String(error)}`,

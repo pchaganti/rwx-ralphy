@@ -164,12 +164,18 @@ export function extractAuthenticationError(output: string): string | null {
 			const parsed = JSON.parse(line);
 
 			// Check if this is any kind of error response
-			if (parsed.type === "error" || parsed.is_error === true || parsed.error === "authentication_failed") {
+			if (
+				parsed.type === "error" ||
+				parsed.is_error === true ||
+				parsed.error === "authentication_failed"
+			) {
 				// Extract message from content array (assistant type) or standard fields
 				let message = "";
 				const content = parsed.message?.content;
 				if (Array.isArray(content)) {
-					const textItem = content.find((item: { type?: string; text?: string }) => item.type === "text" && item.text);
+					const textItem = content.find(
+						(item: { type?: string; text?: string }) => item.type === "text" && item.text,
+					);
 					if (textItem) message = textItem.text;
 				}
 				if (!message) {

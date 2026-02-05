@@ -1,6 +1,6 @@
 import { logError } from "../ui/logger.ts";
-import type { Task, TaskSource, TaskSourceType } from "./types.ts";
 import { JsonTaskSource } from "./json.ts";
+import type { Task, TaskSource, TaskSourceType } from "./types.ts";
 import { YamlTaskSource } from "./yaml.ts";
 
 interface CachedTaskSourceOptions {

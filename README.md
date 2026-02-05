@@ -362,6 +362,11 @@ When an engine exits non-zero, ralphy includes the last lines of CLI output in t
 
 ## Changelog
 
+### v4.7.2
+- **Improved auth error detection**: simplified `extractAuthenticationError` function with better edge case handling (e.g., JSON dumps during login)
+- **Added project standards**: `CLAUDE.md`, `.cursorrules`, `CONTRIBUTING.md` for consistent AI-assisted development
+- **Enhanced default prompts**: enforce concise, focused code changes
+
 ### v4.7.1
 - **Copilot engine improvements**: non-interactive mode (`--yolo`), proper error detection for auth/rate-limit/network errors, token usage parsing, temp file-based prompts for markdown preservation
 - **Fixed infinite retry loop**: tasks now properly abort on fatal configuration/authentication errors

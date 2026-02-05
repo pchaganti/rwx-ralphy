@@ -103,8 +103,7 @@ export function parseArgs(args: string[]): {
 	const modelOverride = opts.sonnet ? "sonnet" : opts.model || undefined;
 
 	// Determine PRD source with auto-detection for file vs folder
-	let prdSource: "markdown" | "markdown-folder" | "yaml" | "json" | "github" =
-		"markdown";
+	let prdSource: "markdown" | "markdown-folder" | "yaml" | "json" | "github" = "markdown";
 	let prdFile = opts.prd || "PRD.md";
 	let prdIsFolder = false;
 
@@ -153,7 +152,7 @@ export function parseArgs(args: string[]): {
 		prdIsFolder,
 		githubRepo: opts.github || "",
 		githubLabel: opts.githubLabel || "",
-		syncIssue: opts.syncIssue ? (Number.parseInt(opts.syncIssue, 10) || undefined) : undefined,
+		syncIssue: opts.syncIssue ? Number.parseInt(opts.syncIssue, 10) || undefined : undefined,
 		autoCommit: opts.commit !== false,
 		browserEnabled: opts.browser === true ? "true" : opts.browser === false ? "false" : "auto",
 		modelOverride,

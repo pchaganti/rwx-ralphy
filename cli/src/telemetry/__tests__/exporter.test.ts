@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from "bun:test";
-import { mkdir, rm, readFile } from "node:fs/promises";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { existsSync } from "node:fs";
+import { mkdir, readFile, rm } from "node:fs/promises";
 import { TelemetryExporter } from "../exporter.ts";
-import { TelemetryWriter } from "../writer.ts";
 import type { Session, ToolCall } from "../types.ts";
+import { TelemetryWriter } from "../writer.ts";
 
 const TEST_DIR = "/tmp/ralphy-exporter-test";
 
